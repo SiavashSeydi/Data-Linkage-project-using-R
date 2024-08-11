@@ -20,7 +20,7 @@ patient_clean <- distinct(patient_selected, Social_Insurance_Number, .keep_all =
 healthcare_cleaner <- na.omit(healthcare_clean)
 patient_cleaner <- na.omit(patient_clean)
 
-# Detecting and removing outlires
+# Detecting and removing outliers
 Q1 <- quantile(patient_cleaner$Age, 0.25)
 Q3 <- quantile(patient_cleaner$Age, 0.75)
 IQR <- Q3 - Q1
@@ -36,6 +36,12 @@ healthcare_cleaner$Hashed_SIN <- sapply(healthcare_cleaner$Social_Insurance_Numb
 merged_data <- merge(patient_cleaner %>% select(Hashed_SIN, Age),
                      healthcare_cleaner %>% select(Hashed_SIN, Medical_Condition),
                      by = "Hashed_SIN", all = FALSE)
+
+# Exporting the merged data to a CSV file
+write.csv(merged_data, here("merged_data.csv"), row.names = FALSE)
+
+# Reading the merged data back in
+merged_data <- read.csv(here("merged_data.csv"), stringsAsFactors = FALSE)
 
 # Identifying cancer cases
 merged_data$cancer <- ifelse(grepl("cancer", tolower(merged_data$Medical_Condition)), 1, 0)
